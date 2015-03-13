@@ -1,5 +1,5 @@
 name 'failover-wordpress'
 
-%w(wordpress mysql database).each do |ckbk|
+%w(wordpress percona-multi database).each do |ckbk|
   depends ckbk
 end
