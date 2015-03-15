@@ -17,6 +17,11 @@
 
 name 'failover-wordpress'
 
-%w(wordpress percona-multi database nginx).each do |ckbk|
-  depends ckbk
+{
+  'percona-multi' => 'latest',
+  database: 'latest',
+  mysql: '~> 6.0',
+  nginx: 'latest'
+}.each do |ckbk, version|
+  depends ckbk, version
 end
