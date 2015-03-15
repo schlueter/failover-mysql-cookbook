@@ -17,4 +17,4 @@
 
 database = node['failover_wordpress']['database']
 
-include_recipe "#{database['server']}_master"
+include_recipe "failover-wordpress::#{database['server']}_master"
