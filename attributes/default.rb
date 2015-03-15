@@ -18,7 +18,12 @@
 default['failover_wordpress']['database']['server'] = 'percona'
 default['failover_wordpress']['database']['master']['host'] = '127.0.0.1'
 default['failover_wordpress']['database']['slave']['host'] = nil
+default['failover_wordpress']['database']['master']['initial_root_password'] = 'changeme'
 
 default['failover_wordpress']['webserver']['server'] = 'nginx'
 
 default['failover_wordpress']['wordpress']['name'] = 'my blog'
+
+include_attributes 'wordpress'
+
+default['wordpress']['db']['host'] = node['failover_wordpress']['database']['master']['host']
