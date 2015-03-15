@@ -15,6 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-database = node['failover-wordpress']['database']
+database = node['failover_wordpress']['database']
 
 include_recipe "#{database['server']}_master"
