@@ -24,6 +24,6 @@ default['failover_wordpress']['webserver']['server'] = 'nginx'
 
 default['failover_wordpress']['wordpress']['name'] = 'my blog'
 
-include_attributes 'wordpress'
+include_attribute 'wordpress'
 
 default['wordpress']['db']['host'] = node['failover_wordpress']['database']['master']['host']
