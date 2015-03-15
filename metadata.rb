@@ -26,5 +26,5 @@ version '0.0.1'
 
 depends 'percona-multi'
 depends 'database'
-depends 'mysql' '~> 6.0'
+depends 'mysql', '~> 6.0'
 depends 'nginx'
