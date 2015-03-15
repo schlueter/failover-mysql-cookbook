@@ -17,6 +17,8 @@
 
 name 'failover-wordpress'
 
+version '0.0.0'
+
 depends 'percona-multi'
 depends 'database'
 depends 'mysql' '~> 6.0'
