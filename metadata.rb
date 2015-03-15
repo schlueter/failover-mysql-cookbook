@@ -16,8 +16,13 @@
 ##
 
 name 'failover-wordpress'
+maintainer 'Brandon Schlueter'
+maintainer_email 'bs@bschlueter.com'
+license 'GPL v3'
+description 'Provides recipes for the wordpress-with-mysql-replication-and-failover projects'
+supports 'ubuntu'
 
-version '0.0.0'
+version '0.0.1'
 
 depends 'percona-multi'
 depends 'database'
