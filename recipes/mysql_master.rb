@@ -50,7 +50,7 @@ elsif node['platform_family'] == 'rhel'
 end
 
 mysql_connection_info = {
-  host: 'localhost',
+  host: db['host'],
   username: 'root',
   password: db['root_password']
 }
@@ -63,7 +63,6 @@ end
 mysql_database_user db['user'] do
   connection mysql_connection_info
   password db['pass']
-  host db['host']
   database_name db['name']
   action :create
 end
