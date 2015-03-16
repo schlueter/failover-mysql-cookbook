@@ -15,16 +15,62 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-mysql_service 'default' do
+db = node['failover_wordpress']['database']['master']
+
+mysql_service db['instance_name'] do
   port '3306'
   version '5.5'
-  bind_address node['failover_wordpress']['database']['master']['host']
-  initial_root_password node['failover_wordpress']['database']['master']['initial_root_password']
+  bind_address db['host']
+  initial_root_password db['root_password']
   action [:create, :start]
 end
 
-mysql_config 'default' do
+mysql_config db['instance_name'] do
   source 'mysite.cnf.erb'
   notifies :restart, 'mysql_service[default]'
   action :create
+end
+
+mysql2_chef_gem 'default' do
+  action :install
+end
+
+socket = "/var/run/mysql-#{db['instance_name']}/mysqld.sock"
+
+if node['platform_family'] == 'debian'
+  link '/var/run/mysqld/mysqld.sock' do
+    to socket
+    not_if 'test -f /var/run/mysqld/mysqld.sock'
+  end
+elsif node['platform_family'] == 'rhel'
+  link '/var/lib/mysql/mysql.sock' do
+    to socket
+    not_if 'test -f /var/lib/mysql/mysql.sock'
+  end
+end
+
+mysql_connection_info = {
+  host: 'localhost',
+  username: 'root',
+  password: db['root_password']
+}
+
+mysql_database db['name'] do
+  connection mysql_connection_info
+  action :create
+end
+
+mysql_database_user db['user'] do
+  connection mysql_connection_info
+  password db['pass']
+  host db['host']
+  database_name db['name']
+  action :create
+end
+
+mysql_database_user db['user'] do
+  connection mysql_connection_info
+  database_name db['name']
+  privileges [:all]
+  action :grant
 end
