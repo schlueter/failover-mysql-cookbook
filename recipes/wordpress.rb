@@ -15,4 +15,4 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-include_recipe 'wordpress::nginx'
+include_recipe "wordpress::#{node['failover_wordpress']['webserver']['server']}"
