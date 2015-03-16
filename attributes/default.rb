@@ -29,8 +29,7 @@ default['failover_wordpress']['database']['slave']['host'] = nil
 
 # Options are nginx or apache
 default['failover_wordpress']['webserver']['server'] = 'nginx'
-
-default['failover_wordpress']['wordpress']['name'] = 'my blog'
+default['failover_wordpress']['webserver']['host'] = '127.0.0.1'
 
 primary_db = node['failover_wordpress']['database']['master']
 
