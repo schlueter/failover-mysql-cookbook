@@ -18,6 +18,7 @@
 mysql_service 'default' do
   port '3306'
   version '5.5'
+  bind_address node['failover_wordpress']['database']['master']['host']
   initial_root_password node['failover_wordpress']['database']['master']['initial_root_password']
   action [:create, :start]
 end
