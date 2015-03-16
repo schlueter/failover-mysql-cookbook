@@ -64,7 +64,7 @@ mysql_database_user db['user'] do
   connection mysql_connection_info
   password db['pass']
   database_name db['name']
-  host node['failover_wordpress']['wordpress']['webserver']['host']
+  host node['failover_wordpress']['webserver']['host']
   privileges [:all]
   action [:create, :grant]
 end
