@@ -29,7 +29,8 @@ mysql_config db['instance_name'] do
   source 'mysite.cnf.erb'
   notifies :restart, 'mysql_service[default]'
   variables(
-    server_id: db['server_id']
+    server_id: db['server_id'],
+    host: db['host']
   )
   action :create
 end
@@ -63,7 +64,16 @@ mysql_database db['name'] do
   action :create
 end
 
-mysql_database_user db['user'] do
+mysql_database_user db['app_user'] do
+  connection mysql_connection_info
+  password db['app_pass']
+  database_name db['name']
+  host node['failover_wordpress']['webserver']['host']
+  privileges [:all]
+  action [:create, :grant]
+end
+
+mysql_database_user db[''] do
   connection mysql_connection_info
   password db['pass']
   database_name db['name']
