@@ -60,6 +60,23 @@ mysql_connection_info = {
   password: db['root_password']
 }
 
+mysql_database_user db['app_user'] do
+  connection mysql_connection_info
+  password db['app_pass']
+  database_name db['name']
+  host node['failover_wordpress']['webserver']['host']
+  privileges [:all]
+  action [:create, :grant]
+end
+
+mysql_database_user db['slave_user'] do
+  connection mysql_connection_info
+  password db['slave_pass']
+  host node['failover_wordpress']['database']['slave']['host']
+  privileges ['REPLICATION SLAVE']
+  action [:create, :grant]
+end
+
 mysql_database db['name'] do
   connection mysql_connection_info
   sql <<-SQL
@@ -72,5 +89,3 @@ CHANGE MASTER TO
   SQL
   action [:create, :query]
 end
-
-
