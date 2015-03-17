@@ -64,11 +64,11 @@ mysql_database db['name'] do
   connection mysql_connection_info
   sql <<-SQL
 CHANGE MASTER TO
-  MASTER_HOST = #{master_db['host']},
-  MASTER_USER = #{master_db['slave_user']},
-  MASTER_PASSWORD = #{master_db['slave_pass']},
-  MASTER_LOG_FILE = #{master_db['log_file']},
-  MASTER_LOG_POS = #{master_db['log_pos']}
+  MASTER_HOST='#{master_db['host']}',
+  MASTER_USER='#{master_db['slave_user']}',
+  MASTER_PASSWORD='#{master_db['slave_pass']}',
+  MASTER_LOG_FILE='#{master_db['log_file']}',
+  MASTER_LOG_POS=#{master_db['log_pos']};
   SQL
   action [:create, :query]
 end
