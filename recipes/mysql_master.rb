@@ -28,6 +28,9 @@ end
 mysql_config db['instance_name'] do
   source 'mysite.cnf.erb'
   notifies :restart, 'mysql_service[default]'
+  variables(
+    server_id: db['server_id']
+  )
   action :create
 end
 

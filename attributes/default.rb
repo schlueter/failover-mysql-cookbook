@@ -22,6 +22,7 @@ default['failover_wordpress']['database']['master']['host'] = '127.0.0.1'
 default['failover_wordpress']['database']['master']['instance_name'] = 'default'
 default['failover_wordpress']['database']['master']['name'] = 'wordpress'
 default['failover_wordpress']['database']['master']['root_password'] = 'changeme'
+default['failover_wordpress']['database']['master']['server_id'] = '1'
 default['failover_wordpress']['database']['master']['user'] = 'wordpress'
 default['failover_wordpress']['database']['master']['pass'] = 'wordpress'
 
