@@ -16,6 +16,7 @@
 ##
 
 db = node['failover_wordpress']['database']['slave']
+master_db = node['failover_wordpress']['database']['master']
 
 mysql_service db['instance_name'] do
   port '3306'
@@ -61,14 +62,15 @@ mysql_connection_info = {
 
 mysql_database db['name'] do
   connection mysql_connection_info
-  action :create
+  sql <<-SQL
+CHANGE MASTER TO
+  MASTER_HOST = #{master_db['host']},
+  MASTER_USER = #{master_db['slave_user']},
+  MASTER_PASSWORD = #{master_db['slave_pass']},
+  MASTER_LOG_FILE = #{master_db['log_file']},
+  MASTER_LOG_POS = #{master_db['log_pos']}
+  SQL
+  action [:create, :query]
 end
 
-mysql_database_user db['app_user'] do
-  connection mysql_connection_info
-  password db['pass']
-  database_name db['name']
-  host node['failover_wordpress']['webserver']['host']
-  privileges [:all]
-  action [:create, :grant]
-end
+

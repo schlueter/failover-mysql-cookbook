@@ -20,15 +20,20 @@ default['failover_wordpress']['database']['server'] = 'percona'
 
 default['failover_wordpress']['database']['master']['host'] = '127.0.0.1'
 default['failover_wordpress']['database']['master']['instance_name'] = 'default'
-default['failover_wordpress']['database']['master']['name'] = 'master'
+default['failover_wordpress']['database']['master']['name'] = 'wordpress'
 default['failover_wordpress']['database']['master']['root_password'] = 'changeme'
 default['failover_wordpress']['database']['master']['server_id'] = '1'
 default['failover_wordpress']['database']['master']['app_user'] = 'wordpress'
 default['failover_wordpress']['database']['master']['app_pass'] = 'wordpress'
+default['failover_wordpress']['database']['master']['slave_user'] = 'slave'
+default['failover_wordpress']['database']['master']['slave_pass'] = 'slave'
+# the values for log_file and log_pos are what repeatedly appeared after bringing up the master
+default['failover_wordpress']['database']['master']['log_file'] = 'mysql-bin.000001'
+default['failover_wordpress']['database']['master']['log_pos'] = '107'
 
 default['failover_wordpress']['database']['slave']['host'] = nil
 default['failover_wordpress']['database']['slave']['instance_name'] = 'default'
-default['failover_wordpress']['database']['slave']['name'] = 'slave'
+default['failover_wordpress']['database']['slave']['name'] = 'wordpress'
 default['failover_wordpress']['database']['slave']['root_password'] = 'changeme'
 default['failover_wordpress']['database']['slave']['server_id'] = '2'
 

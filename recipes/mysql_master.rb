@@ -73,11 +73,10 @@ mysql_database_user db['app_user'] do
   action [:create, :grant]
 end
 
-mysql_database_user db[''] do
+mysql_database_user db['slave_user'] do
   connection mysql_connection_info
-  password db['pass']
-  database_name db['name']
-  host node['failover_wordpress']['webserver']['host']
-  privileges [:all]
+  password db['slave_pass']
+  host node['failover_wordpress']['database']['slave']['host']
+  privileges ['REPLICATION SLAVE']
   action [:create, :grant]
 end
