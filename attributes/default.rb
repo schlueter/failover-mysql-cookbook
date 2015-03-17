@@ -27,6 +27,10 @@ default['failover_wordpress']['database']['master']['app_user'] = 'wordpress'
 default['failover_wordpress']['database']['master']['app_pass'] = 'wordpress'
 
 default['failover_wordpress']['database']['slave']['host'] = nil
+default['failover_wordpress']['database']['slave']['instance_name'] = 'default'
+default['failover_wordpress']['database']['slave']['name'] = 'slave'
+default['failover_wordpress']['database']['slave']['root_password'] = 'changeme'
+default['failover_wordpress']['database']['slave']['server_id'] = '2'
 
 # Options are nginx or apache
 default['failover_wordpress']['webserver']['server'] = 'nginx'
