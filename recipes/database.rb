@@ -14,3 +14,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
+
+database = node['failover_wordpress']['database']
+
+include_recipe "failover-wordpress::database_#{database['server']}"

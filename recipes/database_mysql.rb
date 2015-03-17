@@ -15,10 +15,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-db = node['failover_wordpress']['database']['master']
+db = node['failover_wordpress']['database']
 
 mysql_service db['instance_name'] do
-  port '3306'
   version '5.5'
   bind_address db['host']
   initial_root_password db['root_password']
@@ -76,7 +75,32 @@ end
 mysql_database_user db['slave_user'] do
   connection mysql_connection_info
   password db['slave_pass']
-  host node['failover_wordpress']['database']['slave']['host']
+  host db['slave_host']
   privileges ['REPLICATION SLAVE']
   action [:create, :grant]
+end
+
+
+if db['master_host']
+  # TODO make this deal with current slaves savely
+=begin
+  This:
+  mysql> GRANT REPLICATION CLIENT ON *.* TO 'slave'@'192.168.10.12';
+  then get the log file name:
+  mysql -h 192.168.10.11 -uslave -pslave -e "show master status" -s | tail -n 1 | awk {'print $1'}
+  and log pos:
+  mysql -h 192.168.10.11 -uslave -pslave -e "show master status" -s | tail -n 1 | awk {'print $2'}
+=end
+  mysql_database db['name'] do
+    connection mysql_connection_info
+    sql <<-SQL
+  CHANGE MASTER TO
+    MASTER_HOST='#{db['master_host']}',
+    MASTER_USER='#{db['slave_user']}',
+    MASTER_PASSWORD='#{db['slave_pass']}',
+    MASTER_LOG_FILE='#{db['log_file']}',
+    MASTER_LOG_POS=#{db['log_pos']};
+    SQL
+    action [:create, :query]
+  end
 end

@@ -17,7 +17,7 @@
 
 include_recipe "wordpress::#{node['failover_wordpress']['webserver']['server']}"
 
-primary_db = node['failover_wordpress']['database']['master']
+db = node['failover_wordpress']['database']
 
 # Override the wordpress ckbk's config because of a chef bug which makes controlling
 # the value of the wordpress' user's password in attributes difficult.
@@ -27,10 +27,10 @@ template "#{node['wordpress']['dir']}/wp-config.php" do
   source 'wp-config.php.erb'
   mode node['wordpress']['config_perms']
   variables(
-    db_name: primary_db['name'],
-    db_user: primary_db['app_user'],
-    db_password: primary_db['app_pass'],
-    db_host: primary_db['host'],
+    db_name: db['name'],
+    db_user: db['app_user'],
+    db_password: db['app_pass'],
+    db_host: db['host'],
     db_prefix: node['wordpress']['db']['prefix'],
     db_charset: node['wordpress']['db']['charset'],
     db_collate: node['wordpress']['db']['collate'],
