@@ -48,7 +48,7 @@ class Chef
 
           converge_by "Setting master on slave '#{new_resource.database_name}'" do
             begin
-              master_sql = <<-SQL
+              slave_sql = <<-SQL
 CHANGE MASTER TO
   MASTER_HOST='#{new_resource.connection[:host]}',
   MASTER_USER='#{new_resource.connection[:username]}',
@@ -56,10 +56,10 @@ CHANGE MASTER TO
   MASTER_LOG_FILE='#{log_file}',
   MASTER_LOG_POS=#{log_pos}
               SQL
-              # Chef::Log.log("Performing query [#{master_sql}]")
-              master_client.query(master_sql)
+              # Chef::Log.log("Performing query [#{slave_sql}]")
+              slave_client.query(slave_sql)
             ensure
-              close_master_client
+              close_slave_client
             end
           end
         end
