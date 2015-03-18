@@ -18,8 +18,6 @@
 db = node['failover_wordpress']['database']
 
 is_slave = true unless db['master_host'].nil?
-log "is_slave: #{is_slave}"
-log "db['master_host']: #{db['master_host']}"
 
 mysql_service db['instance_name'] do
   version '5.5'
@@ -72,31 +70,20 @@ end
 if is_slave
   master_mysql_connection_info = {
     host: db['master_host'],
-    username: 'root',
-    password: db['root_password']
+    username: db['slave_user'],
+    password: db['slave_pass']
   }
 
-  mysql_database "#{db['name']} master" do
+  mysql_database "#{db['name']}" do
     connection master_mysql_connection_info
-    action :acquire_log_properties
+    slave_connection mysql_connection_info
+    action :slave
   end
 end
 
 mysql_database db['name'] do
   connection mysql_connection_info
-  if is_slave
-    sql <<-SQL
-CHANGE MASTER TO
-  MASTER_HOST='#{db['master_host']}',
-  MASTER_USER='#{db['slave_user']}',
-  MASTER_PASSWORD='#{db['slave_pass']}',
-  MASTER_LOG_FILE='#{db['log_file']}',
-  MASTER_LOG_POS=#{db['log_pos']};
-    SQL
-    action [:create, :query]
-  else
-    action :create
-  end
+  action :create
 end
 
 mysql_database_user db['app_user'] do
