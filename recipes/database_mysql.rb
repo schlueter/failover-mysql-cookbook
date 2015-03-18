@@ -17,6 +17,10 @@
 
 db = node['failover_wordpress']['database']
 
+is_slave = true unless db['master_host'].nil?
+log "is_slave: #{is_slave}"
+log "db['master_host']: #{db['master_host']}"
+
 mysql_service db['instance_name'] do
   version '5.5'
   bind_address db['host']
@@ -32,10 +36,6 @@ mysql_config db['instance_name'] do
     host: db['host']
   )
   action :create
-end
-
-mysql2_chef_gem 'default' do
-  action :install
 end
 
 socket = "/var/run/mysql-#{db['instance_name']}/mysqld.sock"
@@ -58,16 +58,52 @@ mysql_connection_info = {
   password: db['root_password']
 }
 
+# Used by database resources below
+mysql2_chef_gem 'default' do
+  action :install
+end
+
+# This:
+# mysql> GRANT REPLICATION CLIENT ON *.* TO 'slave'@'192.168.10.12';
+# then get the log file name:
+# mysql -h 192.168.10.11 -uslave -pslave -e "show master status" -s | tail -n 1 | awk {'print $1'}
+# and log pos:
+# mysql -h 192.168.10.11 -uslave -pslave -e "show master status" -s | tail -n 1 | awk {'print $2'}
+if is_slave
+  master_mysql_connection_info = {
+    host: db['master_host'],
+    username: 'root',
+    password: db['root_password']
+  }
+
+  mysql_database "#{db['name']} master" do
+    connection master_mysql_connection_info
+    action :acquire_log_properties
+  end
+end
+
 mysql_database db['name'] do
   connection mysql_connection_info
-  action :create
+  if is_slave
+    sql <<-SQL
+CHANGE MASTER TO
+  MASTER_HOST='#{db['master_host']}',
+  MASTER_USER='#{db['slave_user']}',
+  MASTER_PASSWORD='#{db['slave_pass']}',
+  MASTER_LOG_FILE='#{db['log_file']}',
+  MASTER_LOG_POS=#{db['log_pos']};
+    SQL
+    action [:create, :query]
+  else
+    action :create
+  end
 end
 
 mysql_database_user db['app_user'] do
   connection mysql_connection_info
   password db['app_pass']
   database_name db['name']
-  host node['failover_wordpress']['webserver']['host']
+  host node['failover_wordpress']['web']['host']
   privileges [:all]
   action [:create, :grant]
 end
@@ -76,31 +112,6 @@ mysql_database_user db['slave_user'] do
   connection mysql_connection_info
   password db['slave_pass']
   host db['slave_host']
-  privileges ['REPLICATION SLAVE']
+  privileges ['REPLICATION SLAVE', 'REPLICATION CLIENT']
   action [:create, :grant]
-end
-
-
-if db['master_host']
-  # TODO make this deal with current slaves savely
-=begin
-  This:
-  mysql> GRANT REPLICATION CLIENT ON *.* TO 'slave'@'192.168.10.12';
-  then get the log file name:
-  mysql -h 192.168.10.11 -uslave -pslave -e "show master status" -s | tail -n 1 | awk {'print $1'}
-  and log pos:
-  mysql -h 192.168.10.11 -uslave -pslave -e "show master status" -s | tail -n 1 | awk {'print $2'}
-=end
-  mysql_database db['name'] do
-    connection mysql_connection_info
-    sql <<-SQL
-  CHANGE MASTER TO
-    MASTER_HOST='#{db['master_host']}',
-    MASTER_USER='#{db['slave_user']}',
-    MASTER_PASSWORD='#{db['slave_pass']}',
-    MASTER_LOG_FILE='#{db['log_file']}',
-    MASTER_LOG_POS=#{db['log_pos']};
-    SQL
-    action [:create, :query]
-  end
 end

@@ -21,8 +21,8 @@ default['failover_wordpress']['database']['app_user'] = 'wordpress'
 default['failover_wordpress']['database']['host'] = '127.0.0.1'
 default['failover_wordpress']['database']['instance_name'] = 'default'
 # The values for log_file and log_pos are what repeatedly appeared after bringing up the master
-default['failover_wordpress']['database']['log_file'] = 'mysql-bin.000001'
-default['failover_wordpress']['database']['log_pos'] = '107'
+default['failover_wordpress']['database']['log_file'] = nil
+default['failover_wordpress']['database']['log_pos'] = nil
 # Must be specified on db slaves and never on a db master server
 default['failover_wordpress']['database']['master_host'] = nil
 default['failover_wordpress']['database']['name'] = 'wordpress'
@@ -37,9 +37,9 @@ default['failover_wordpress']['database']['slave_pass'] = 'slave'
 default['failover_wordpress']['database']['slave_user'] = 'slave'
 
 # Options are nginx or apache
-default['failover_wordpress']['webserver']['server'] = 'nginx'
+default['failover_wordpress']['web']['server'] = 'nginx'
 # Must be specified on db instances
-default['failover_wordpress']['webserver']['host'] = '127.0.0.1'
+default['failover_wordpress']['web']['host'] = '127.0.0.1'
 
 db = node['failover_wordpress']['database']
 
