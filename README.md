@@ -1,25 +1,31 @@
-# Wordpress using a Replicated database with easy fail over
+# Failover <s>Wordpress</s> MySQL 
 
-This project is an example of a [Wordpress][] site using a replicated database with single command fail over. This implementation runs [Virtual box][] servers hosted via [Vagrant][]. The default database is [MySQL][] and Wordpress is served by [Nginx][].
+This cookbook provides recipes, and additional actions for the mysql_database resource, to allow failover [MySQL][] configurations to be easily created and fail-over triggered. An example recipe for a [Wordpress][] site which can be used to point it at a promoted master is also included.
+
+## Example
+
+The Vagrantfile can be used to bring up an example [Virtual box][] instance hosted via [Vagrant][]. The default database is Oracle's vanilla [MySQL][] and Wordpress is served by [Nginx][].
+
+### Bringing it up
+
+Run `vagrant up` in the root of this project to bring up 3 instances: `web`, which hosts the [Wordpress][] site; `sql1`, a [MySQL][] server initially configured as master; and `sql2`, a second MySQL server initially configured as a slave to he master.
+
+#### Failover
+
+Fail over can be initiated by running `FAILOVER=1 vagrant provision` after the servers have been brought up. This command can be run repeatedly to switch which of the `sql1` and `sql2` instances is the master database server. 
 
 ## Dependencies
 
 - [Chef Development Kit][]
 - [Vagrant][]
-- [Vagrant Omnibus][], obtainable by `vagrant plugin install vagrant-omnibus`
 - [Vagrant Berkshelf][], obtainable by `vagrant plugin install vagrant-berkshelf`
+- [Vagrant Omnibus][], obtainable by `vagrant plugin install vagrant-omnibus`
 
 ### Optional
 
 - [Vagrant Cachier][], obtainable by `vagrant plugin install vagrant-cachier`
 
-## Usage
 
-Run `vagrant up` in the root of this project.
-
-### Failover
-
-Fail over can be initiated by running `FAILOVER=1 vagrant provision` after the servers have been brought up. This command can be run repeatedly to switch the master database server. 
 
 ## License
 
