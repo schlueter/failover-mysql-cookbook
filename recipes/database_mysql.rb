@@ -38,16 +38,9 @@ end
 
 socket = "/var/run/mysql-#{db['instance_name']}/mysqld.sock"
 
-if node['platform_family'] == 'debian'
-  link '/var/run/mysqld/mysqld.sock' do
-    to socket
-    not_if 'test -f /var/run/mysqld/mysqld.sock'
-  end
-elsif node['platform_family'] == 'rhel'
-  link '/var/lib/mysql/mysql.sock' do
-    to socket
-    not_if 'test -f /var/lib/mysql/mysql.sock'
-  end
+link '/var/run/mysqld/mysqld.sock' do
+  to socket
+  not_if 'test -f /var/run/mysqld/mysqld.sock'
 end
 
 mysql_connection_info = {
