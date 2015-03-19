@@ -6,6 +6,17 @@ This cookbook provides recipes, and additional actions for the mysql_database re
 
 The Vagrantfile can be used to bring up an example [Virtual box][] instance hosted via [Vagrant][]. The default database is Oracle's vanilla [MySQL][] and Wordpress is served by [Nginx][].
 
+### Dependencies
+
+- [Chef Development Kit][]
+- [Vagrant][]
+- [Vagrant Berkshelf][], obtainable by `vagrant plugin install vagrant-berkshelf`
+- [Vagrant Omnibus][], obtainable by `vagrant plugin install vagrant-omnibus`
+
+#### Optional
+
+- [Vagrant Cachier][], obtainable by `vagrant plugin install vagrant-cachier`
+
 ### Bringing it up
 
 Run `vagrant up` in the root of this project to bring up 3 instances: `web`, which hosts the [Wordpress][] site; `sql1`, a [MySQL][] server initially configured as master; and `sql2`, a second MySQL server initially configured as a slave to he master.
@@ -14,18 +25,12 @@ Run `vagrant up` in the root of this project to bring up 3 instances: `web`, whi
 
 Fail over can be initiated by running `FAILOVER=1 vagrant provision` after the servers have been brought up. This command can be run repeatedly to switch which of the `sql1` and `sql2` instances is the master database server. 
 
-## Dependencies
+## Actions added to `mysql_database`
 
-- [Chef Development Kit][]
-- [Vagrant][]
-- [Vagrant Berkshelf][], obtainable by `vagrant plugin install vagrant-berkshelf`
-- [Vagrant Omnibus][], obtainable by `vagrant plugin install vagrant-omnibus`
-
-### Optional
-
-- [Vagrant Cachier][], obtainable by `vagrant plugin install vagrant-cachier`
-
-
+- :slave: configure a server as a slave to another
+    uses new property `slave_connection`
+- :promote: promote a slave server to master and slave its previous master to it
+    Uses new property `slaves` which should be an array of hashes containing connection information for each slave which will not be promoted to master and the current master. Additionally, the `slave_connection` property should be populated with connection information for a slave user on the new master, and the `connection` property should be connection information for a user with the __SUPER__ privilege on the new master. 
 
 ## License
 

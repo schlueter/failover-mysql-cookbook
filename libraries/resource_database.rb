@@ -25,13 +25,21 @@ class Chef
         super
         @resource_name = :database
         @database_name = name
-        @allowed_actions.push(:create, :drop, :query, :slave)
+        @allowed_actions.push(:create, :drop, :query, :slave, :promote)
         @action = :create
       end
 
       def slave_connection(arg=nil)
         set_or_return(
           :slave_connection,
+          arg,
+          required: false
+        )
+      end
+
+      def slaves(arg=nil)
+        set_or_return(
+          :slaves,
           arg,
           required: false
         )

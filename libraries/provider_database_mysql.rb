@@ -27,9 +27,6 @@ class Chef
         end
 
         action :slave do
-          log_file = nil
-          log_pos = nil
-
           converge_by "Querying master '#{new_resource.database_name}' for log properties" do
             begin
               master_sql = 'SHOW MASTER STATUS'
@@ -37,9 +34,9 @@ class Chef
               master_result = master_client.query(master_sql)
               master_result.each do |result|
                 Chef::Log.info("Retrieved log file name #{result['File']} from master")
-                log_file = result['File']
+                @log_file = result['File']
                 Chef::Log.info("Retrieved log file position #{result['Position']} from master")
-                log_pos = result['Position']
+                @log_pos = result['Position']
               end
             ensure
               close_master_client
@@ -48,15 +45,13 @@ class Chef
 
           converge_by "Setting master on slave '#{new_resource.database_name}'" do
             begin
-              slave_sql = <<-SQL
-CHANGE MASTER TO
-  MASTER_HOST='#{new_resource.connection[:host]}',
-  MASTER_USER='#{new_resource.connection[:username]}',
-  MASTER_PASSWORD='#{new_resource.connection[:password]}',
-  MASTER_LOG_FILE='#{log_file}',
-  MASTER_LOG_POS=#{log_pos}
-              SQL
-              # Chef::Log.log("Performing query [#{slave_sql}]")
+              slave_sql = 'CHANGE MASTER TO'
+              slave_sql += "MASTER_HOST='#{new_resource.connection[:host]}',"
+              slave_sql += "MASTER_USER='#{new_resource.connection[:username]}',"
+              slave_sql += "MASTER_PASSWORD='#{new_resource.connection[:password]}',"
+              slave_sql += "MASTER_LOG_FILE='#{@log_file}',"
+              slave_sql += "MASTER_LOG_POS=#{@log_pos}"
+              Chef::Log.debug("Performing query [#{slave_sql}]")
               slave_client.query(slave_sql)
             ensure
               close_slave_client
@@ -64,16 +59,85 @@ CHANGE MASTER TO
           end
         end
 
-        def master_client
+        action :promote do
+          # From the MySQL docs at http://dev.mysql.com/doc/refman/5.5/en/replication-solutions-switch.html:
+          #
+          # "Make sure that all slaves have processed any statements in their relay log. On each
+          # slave, issue STOP SLAVE IO_THREAD, then check the output of SHOW PROCESSLIST until you
+          # see Has read all relay log. When this is true for all slaves, they can be
+          # reconfigured to the new setup. On the slave Slave 1 being promoted to become the
+          # master, issue STOP SLAVE and RESET MASTER.
+          #
+          # On the other slaves Slave 2 and Slave 3, use STOP SLAVE and CHANGE MASTER TO
+          # MASTER_HOST='Slave1' (where 'Slave1' represents the real host name of Slave 1). To use
+          # CHANGE MASTER TO, add all information about how to connect to Slave 1 from Slave 2 or
+          # Slave 3 (user, password, port). When issuing the CHANGE MASTER TO statement in this,
+          # there is no need to specify the name of the Slave 1 binary log file or log position to
+          # read from, since the first binary log file and position 4, are the defaults. Finally,
+          # execute START SLAVE on Slave 2 and Slave 3."
+          converge_by 'Halting slaves' do
+            begin
+              slave_sql = 'STOP SLAVE IO_THREAD'
+              slave.clients.each do |slave|
+                Chef::Log.debug("Performing query [#{slave_sql}]")
+                slave.query(slave_sql)
+              end
+            ensure
+              close_slave_clients
+            end
+          end
+
+          converge_by "Resetting master on slave '#{new_resource.database_name}'" do
+            begin
+              master_sql = 'STOP SLAVE'
+              master_client.query(master_sql)
+              master_sql = 'RESET MASTER'
+              master_client.query(master_sql)
+              Chef::Log.debug("Performing query [#{master_sql}]")
+            ensure
+              close_master_client
+            end
+          end
+
+          converge_by 'Setting new master on slaves' do
+            begin
+              slave_sql = 'STOP SLAVE'
+              slave.clients.each do |slave|
+                Chef::Log.debug("Performing query [#{slave_sql}]")
+                slave.query(slave_sql)
+              end
+              slave_sql = 'CHANGE MASTER TO'
+              slave_sql += "MASTER_HOST='#{new_resource.slave_connection[:host]}',"
+              slave_sql += "MASTER_USER='#{new_resource.slave_connection[:username]}',"
+              slave_sql += "MASTER_PASSWORD='#{new_resource.slave_connection[:password]}'"
+              slave.clients.each do |slave|
+                Chef::Log.debug("Performing query [#{slave_sql}]")
+                slave.query(slave_sql)
+              end
+              slave_sql = 'START SLAVE'
+              slave.clients.each do |slave|
+                Chef::Log.debug("Performing query [#{slave_sql}]")
+                slave.query(slave_sql)
+              end
+            ensure
+              close_slave_clients
+            end
+          end
+        end
+
+        def client(connection)
           require 'mysql2'
-          @master_client ||=
-            Mysql2::Client.new(
-            host: new_resource.connection[:host],
-            socket: new_resource.connection[:socket],
-            username: new_resource.connection[:username],
-            password: new_resource.connection[:password],
-            port: new_resource.connection[:port]
-            )
+          Mysql2::Client.new(
+            host: connection[:host],
+            socket: connection[:socket],
+            username: connection[:username],
+            password: connection[:password],
+            port: connection[:port]
+          )
+        end
+
+        def master_client
+          @master_client ||= Mysql2::Client.new(client(new_resource.connection))
         end
 
         def close_master_client
@@ -83,21 +147,27 @@ CHANGE MASTER TO
         end
 
         def slave_client
-          require 'mysql2'
-          @slave_client ||=
-            Mysql2::Client.new(
-            host: new_resource.slave_connection[:host],
-            socket: new_resource.slave_connection[:socket],
-            username: new_resource.slave_connection[:username],
-            password: new_resource.slave_connection[:password],
-            port: new_resource.slave_connection[:port]
-            )
+          @slave_client ||= client(new_resource.slave_connection)
         end
 
         def close_slave_client
           @slave_client.close if @slave_client
         rescue Mysql2::Error
           @slave_client = nil
+        end
+
+        def slave_clients
+          @slave_clients = new_resource.slaves.map { |slave| client(slave) }
+        end
+
+        def close_slave_clients
+          @slave_clients.each do |slave|
+            begin
+              slave.close if slave
+            rescue Mysql2::Error
+              Chef::Log.debug('Failed to close connection to slave.')
+            end
+          end
         end
       end
     end
