@@ -15,33 +15,33 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-default['failover_wordpress']['database']['app_pass'] = 'wordpress'
-default['failover_wordpress']['database']['app_user'] = 'wordpress'
+default['failover-mysql']['database']['app_pass'] = 'wordpress'
+default['failover-mysql']['database']['app_user'] = 'wordpress'
 # Must be set to the current db server's host
-default['failover_wordpress']['database']['host'] = '127.0.0.1'
-default['failover_wordpress']['database']['instance_name'] = 'default'
+default['failover-mysql']['database']['host'] = '127.0.0.1'
+default['failover-mysql']['database']['instance_name'] = 'default'
 # The values for log_file and log_pos are what repeatedly appeared after bringing up the master
-default['failover_wordpress']['database']['log_file'] = nil
-default['failover_wordpress']['database']['log_pos'] = nil
+default['failover-mysql']['database']['log_file'] = nil
+default['failover-mysql']['database']['log_pos'] = nil
 # Must be specified on db slaves and never on a db master server
-default['failover_wordpress']['database']['master_host'] = nil
-default['failover_wordpress']['database']['name'] = 'wordpress'
-default['failover_wordpress']['database']['root_password'] = 'changeme'
+default['failover-mysql']['database']['master_host'] = nil
+default['failover-mysql']['database']['name'] = 'wordpress'
+default['failover-mysql']['database']['root_password'] = 'changeme'
 # Options are mysql or percona
-default['failover_wordpress']['database']['server'] = 'percona'
+default['failover-mysql']['database']['server'] = 'percona'
 # Must be different on every db server
-default['failover_wordpress']['database']['server_id'] = '1'
+default['failover-mysql']['database']['server_id'] = '1'
 # Must be specified on any db server that may become a master
-default['failover_wordpress']['database']['slave_host'] = nil
-default['failover_wordpress']['database']['slave_pass'] = 'slave'
-default['failover_wordpress']['database']['slave_user'] = 'slave'
+default['failover-mysql']['database']['slave_host'] = nil
+default['failover-mysql']['database']['slave_pass'] = 'slave'
+default['failover-mysql']['database']['slave_user'] = 'slave'
 
 # Options are nginx or apache
-default['failover_wordpress']['web']['server'] = 'nginx'
+default['failover-mysql']['web']['server'] = 'nginx'
 # Must be specified on db instances
-default['failover_wordpress']['web']['host'] = '127.0.0.1'
+default['failover-mysql']['web']['host'] = '127.0.0.1'
 
-db = node['failover_wordpress']['database']
+db = node['failover-mysql']['database']
 
 # Overrides for wordpress ckbk
 include_attribute 'wordpress'

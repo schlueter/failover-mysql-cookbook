@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-db = node['failover_wordpress']['database']
+db = node['failover-mysql']['database']
 
 is_slave = true unless db['master_host'].nil?
 
@@ -90,7 +90,7 @@ mysql_database_user db['app_user'] do
   connection mysql_connection_info
   password db['app_pass']
   database_name db['name']
-  host node['failover_wordpress']['web']['host']
+  host node['failover-mysql']['web']['host']
   privileges [:all]
   action [:create, :grant]
 end

@@ -15,6 +15,6 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-database = node['failover_wordpress']['database']
+database = node['failover-mysql']['database']
 
-include_recipe "failover-wordpress::#{database['server']}_slave"
+include_recipe "failover-mysql::#{database['server']}_slave"

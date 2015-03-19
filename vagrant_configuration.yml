@@ -19,7 +19,7 @@ PASSWORDS:
 
 CHEF_JSON:
   sql1:
-    failover_wordpress:
+    failover-mysql:
       database:
         host: *sql1_ip
         root_password: *sql_master_root_pass
@@ -29,7 +29,7 @@ CHEF_JSON:
       web:
         host: *web_ip
   sql2:
-    failover_wordpress:
+    failover-mysql:
       database:
         host: *sql2_ip
         master_host: *sql1_ip
@@ -40,7 +40,7 @@ CHEF_JSON:
       web:
         host: *web_ip
   web:
-    failover_wordpress:
+    failover-mysql:
       database:
         host: *sql1_ip
         root_password: *sql_master_root_pass

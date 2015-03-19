@@ -15,9 +15,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-include_recipe "wordpress::#{node['failover_wordpress']['web']['server']}"
+include_recipe "wordpress::#{node['failover-mysql']['web']['server']}"
 
-db = node['failover_wordpress']['database']
+db = node['failover-mysql']['database']
 
 # Override the wordpress ckbk's config because of a chef bug which makes controlling
 # the value of the wordpress' user's password in attributes difficult.

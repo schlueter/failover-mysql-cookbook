@@ -40,7 +40,7 @@ Vagrant.configure(2) do |config|
         failover_provision(sql, master)
       else
         sql.vm.provision :chef_solo do |chef|
-          chef.run_list = %w(failover-wordpress::database)
+          chef.run_list = %w(failover-mysql::database)
           chef.json = CONFIGURATION['CHEF_JSON']['sql1']
         end
       end
@@ -55,7 +55,7 @@ Vagrant.configure(2) do |config|
         failover_provision(sql, master)
       else
         sql.vm.provision :chef_solo do |chef|
-          chef.run_list = %w(failover-wordpress::database)
+          chef.run_list = %w(failover-mysql::database)
           chef.json = CONFIGURATION['CHEF_JSON']['sql2']
         end
       end
@@ -116,7 +116,7 @@ Vagrant.configure(2) do |config|
     web.vm.network 'forwarded_port', guest: 80, host: 8080
 
     web.vm.provision :chef_solo do |chef|
-      chef.run_list = %w(failover-wordpress::wordpress)
+      chef.run_list = %w(failover-mysql::wordpress)
       chef.json = CONFIGURATION['CHEF_JSON']['web']
     end
   end

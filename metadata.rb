@@ -15,7 +15,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-name 'failover-wordpress'
+name 'failover-mysql'
 maintainer 'Brandon Schlueter'
 maintainer_email 'bs@bschlueter.com'
 license 'GPL v3'
