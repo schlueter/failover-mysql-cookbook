@@ -46,11 +46,11 @@ class Chef
           converge_by "Setting master on slave '#{new_resource.database_name}'" do
             begin
               slave_sql = 'CHANGE MASTER TO'
-              slave_sql += "MASTER_HOST='#{new_resource.connection[:host]}',"
-              slave_sql += "MASTER_USER='#{new_resource.connection[:username]}',"
-              slave_sql += "MASTER_PASSWORD='#{new_resource.connection[:password]}',"
-              slave_sql += "MASTER_LOG_FILE='#{@log_file}',"
-              slave_sql += "MASTER_LOG_POS=#{@log_pos}"
+              slave_sql += " MASTER_HOST='#{new_resource.connection[:host]}',"
+              slave_sql += " MASTER_USER='#{new_resource.connection[:username]}',"
+              slave_sql += " MASTER_PASSWORD='#{new_resource.connection[:password]}',"
+              slave_sql += " MASTER_LOG_FILE='#{@log_file}',"
+              slave_sql += " MASTER_LOG_POS=#{@log_pos}"
               Chef::Log.debug("Performing query [#{slave_sql}]")
               slave_client.query(slave_sql)
             ensure
@@ -64,7 +64,7 @@ class Chef
           #
           # "Make sure that all slaves have processed any statements in their relay log. On each
           # slave, issue STOP SLAVE IO_THREAD, then check the output of SHOW PROCESSLIST until you
-          # see Has read all relay log. When this is true for all slaves, they can be
+          # see [Has read all relay log] SIC?. When this is true for all slaves, they can be
           # reconfigured to the new setup. On the slave Slave 1 being promoted to become the
           # master, issue STOP SLAVE and RESET MASTER.
           #
@@ -78,7 +78,7 @@ class Chef
           converge_by 'Halting slaves' do
             begin
               slave_sql = 'STOP SLAVE IO_THREAD'
-              slave.clients.each do |slave|
+              slave_clients.each do |slave|
                 Chef::Log.debug("Performing query [#{slave_sql}]")
                 slave.query(slave_sql)
               end
@@ -102,20 +102,20 @@ class Chef
           converge_by 'Setting new master on slaves' do
             begin
               slave_sql = 'STOP SLAVE'
-              slave.clients.each do |slave|
+              slave_clients.each do |slave|
                 Chef::Log.debug("Performing query [#{slave_sql}]")
                 slave.query(slave_sql)
               end
               slave_sql = 'CHANGE MASTER TO'
-              slave_sql += "MASTER_HOST='#{new_resource.slave_connection[:host]}',"
-              slave_sql += "MASTER_USER='#{new_resource.slave_connection[:username]}',"
-              slave_sql += "MASTER_PASSWORD='#{new_resource.slave_connection[:password]}'"
-              slave.clients.each do |slave|
+              slave_sql += " MASTER_HOST='#{new_resource.slave_connection[:host]}',"
+              slave_sql += " MASTER_USER='#{new_resource.slave_connection[:username]}',"
+              slave_sql += " MASTER_PASSWORD='#{new_resource.slave_connection[:password]}'"
+              slave_clients.each do |slave|
                 Chef::Log.debug("Performing query [#{slave_sql}]")
                 slave.query(slave_sql)
               end
               slave_sql = 'START SLAVE'
-              slave.clients.each do |slave|
+              slave_clients.each do |slave|
                 Chef::Log.debug("Performing query [#{slave_sql}]")
                 slave.query(slave_sql)
               end
@@ -137,7 +137,7 @@ class Chef
         end
 
         def master_client
-          @master_client ||= Mysql2::Client.new(client(new_resource.connection))
+          @master_client ||= client(new_resource.connection)
         end
 
         def close_master_client
@@ -157,15 +157,17 @@ class Chef
         end
 
         def slave_clients
-          @slave_clients = new_resource.slaves.map { |slave| client(slave) }
+          @slave_clients = new_resource.slave_clients.map { |slave| client(slave) }
         end
 
         def close_slave_clients
-          @slave_clients.each do |slave|
-            begin
-              slave.close if slave
-            rescue Mysql2::Error
-              Chef::Log.debug('Failed to close connection to slave.')
+          if @slave_clients
+            @slave_clients.each do |slave|
+              begin
+                slave.close if slave
+              rescue Mysql2::Error
+                Chef::Log.debug('Failed to close connection to slave.')
+              end
             end
           end
         end

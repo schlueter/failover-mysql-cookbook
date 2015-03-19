@@ -37,9 +37,9 @@ class Chef
         )
       end
 
-      def slaves(arg=nil)
+      def slave_clients(arg=nil)
         set_or_return(
-          :slaves,
+          :slave_clients,
           arg,
           required: false
         )
