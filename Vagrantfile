@@ -30,51 +30,44 @@ Vagrant.configure(2) do |config|
 
   config.vm.box = CONFIGURATION['BOX']
 
-  def sql1(config, failover=false, master=true)
-    config.vm.define 'sql1' do |sql|
+  @config = config
+
+  def sql1(chef_json='sql1')
+    @config.vm.define 'sql1' do |sql|
       sql.vm.network :private_network, ip: CONFIGURATION['IP_ADDRESSES']['sql1']
 
-      if failover
-        failover_provision(sql, master)
-      else
-        sql.vm.provision :chef_solo do |chef|
-          chef.run_list = %w(failover-mysql::database)
-          chef.json = CONFIGURATION['CHEF_JSON']['sql1']
-        end
+      sql.vm.provision :chef_solo do |chef|
+        chef.run_list = %w(failover-mysql)
+        chef.json = CONFIGURATION['CHEF_JSON'][chef_json]
       end
     end
   end
 
-  def sql2(config, failover=false, master=false)
-    config.vm.define 'sql2' do |sql|
+  def sql2(chef_json='sql2')
+    @config.vm.define 'sql2' do |sql|
       sql.vm.network :private_network, ip: CONFIGURATION['IP_ADDRESSES']['sql2']
 
-      if failover
-        failover_provision(sql, master)
-      else
-        sql.vm.provision :chef_solo do |chef|
-          chef.run_list = %w(failover-mysql::database)
-          chef.json = CONFIGURATION['CHEF_JSON']['sql2']
-        end
+      sql.vm.provision :chef_solo do |chef|
+        chef.run_list = %w(failover-mysql)
+        chef.json = CONFIGURATION['CHEF_JSON'][chef_json]
       end
     end
   end
 
-  def web
-    config.vm.define 'web' do |web|
+  def web(chef_json='web')
+    @config.vm.define 'web' do |web|
       web.vm.network :private_network, ip: CONFIGURATION['IP_ADDRESSES']['web']
 
       web.vm.network 'forwarded_port', guest: 80, host: 8080
 
       web.vm.provision :chef_solo do |chef|
         chef.run_list = %w(failover-mysql::wordpress)
-        chef.json = CONFIGURATION['CHEF_JSON']['web']
+        chef.json = CONFIGURATION['CHEF_JSON'][chef_json]
       end
     end
   end
 
   if ENV['FAILOVER']
-
     begin
       # Read current master from .failover file
       ::File.open('.failover', 'r').each do |line|
@@ -85,12 +78,12 @@ Vagrant.configure(2) do |config|
       @master = 'sql1'
     end
 
-    if @master == 'sql2'
-      puts 'sql2'
+    if @master == 'sql1'
+      sql2('sql2_failover')
     else
-      puts 'sql1'
+      sql1('sql1_failover')
     end
-
+    web('web_failover')
     # Clear the contents of the file
     File.open('.failover', 'w') {}
     # Populate the file with the current master
@@ -99,8 +92,8 @@ Vagrant.configure(2) do |config|
       file.write "master=#{@master == 'sql1' ? 'sql2' : 'sql1'}"
     end
   else
-    sql1 config
-    sql2 config
+    sql1
+    sql2
     web
   end
 end
