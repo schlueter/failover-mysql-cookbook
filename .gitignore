@@ -16,3 +16,5 @@
 ##
 
 Berksfile.lock
+.vagrant/
+.failover

@@ -15,10 +15,18 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-# Rubocop's default is 80, which is overly restrictive
+# Rubocop's default of 15 is far too low for even database connections
+Metrics/AbcSize:
+  Max: 20
+
+# Rubocop's default is 80, which is overly restrictive (the author likes long variable names)
 Metrics/LineLength:
   Max: 100
 
-# I Started with python, so prefer this:
+# The default of 10 is quite restrictive
+Metrics/MethodLength:
+  Max: 20
+
+# The author started with python, so prefers this:
 Style/SpaceAroundEqualsInParameterDefault:
   EnforcedStyle: no_space
