@@ -17,7 +17,4 @@
 
 source 'https://supermarket.getchef.com'
 
-# cookbook 'failover-wordpress', github: 'schlueter/failover-wordpress-cookbook'
-# cookbook 'failover-wordpress', path: '.'
-
 metadata
