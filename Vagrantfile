@@ -26,9 +26,7 @@ require 'yaml'
 Vagrant.configure(2) do |config|
   CONFIGURATION = YAML.load_file(File.join(File.dirname(__FILE__), 'vagrant_configuration.yml'))
 
-  if Vagrant.has_plugin?('vagrant-cachier')
-    config.cache.scope = :box
-  end
+  config.cache.scope = :box if Vagrant.has_plugin?('vagrant-cachier')
 
   config.vm.box = CONFIGURATION['BOX']
 
@@ -62,62 +60,47 @@ Vagrant.configure(2) do |config|
     end
   end
 
+  def web
+    config.vm.define 'web' do |web|
+      web.vm.network :private_network, ip: CONFIGURATION['IP_ADDRESSES']['web']
+
+      web.vm.network 'forwarded_port', guest: 80, host: 8080
+
+      web.vm.provision :chef_solo do |chef|
+        chef.run_list = %w(failover-mysql::wordpress)
+        chef.json = CONFIGURATION['CHEF_JSON']['web']
+      end
+    end
+  end
+
   if ENV['FAILOVER']
-    def failover_provision(config, master)
-      if master
-        config.vm.provision :chef_solo do |_|
-        end
-      else
-        config.vm.provision :chef_solo do |_|
-        end
-      end
-    end
-
-    def populate_failover_file(master)
-      # Ruby doesn't have a good way to modify a file in-place, and this was easiest, and safe
-      # Clear the contents of the file
-      File.open('.failover', 'w') {}
-      # Populate the file with the current master
-      ::File.open('.failover', 'w') do |file|
-        file.write CONFIGURATION['FAILOVER_FILE_PREFIX']
-        file.write "master=#{master}"
-      end
-    end
-
-    master = nil
 
     begin
       # Read current master from .failover file
       ::File.open('.failover', 'r').each do |line|
-        master = line.split('=')[1] if line.start_with? 'master='
+        @master = line.split('=')[1] if line.start_with? 'master='
       end
     rescue Errno::ENOENT
       puts 'No .failover file found. Assuming sql1 is current master'
+      @master = 'sql1'
     end
 
-    # Default to sql1
-    master ||= 'sql1'
-
-    if master == 'sql2'
+    if @master == 'sql2'
       puts 'sql2'
-      populate_failover_file 'sql1'
     else
       puts 'sql1'
-      populate_failover_file 'sql2'
+    end
+
+    # Clear the contents of the file
+    File.open('.failover', 'w') {}
+    # Populate the file with the current master
+    File.open('.failover', 'w') do |file|
+      file.write CONFIGURATION['FAILOVER_FILE_PREFIX']
+      file.write "master=#{@master == 'sql1' ? 'sql2' : 'sql1'}"
     end
   else
     sql1 config
     sql2 config
-  end
-
-  config.vm.define 'web' do |web|
-    web.vm.network :private_network, ip: CONFIGURATION['IP_ADDRESSES']['web']
-
-    web.vm.network 'forwarded_port', guest: 80, host: 8080
-
-    web.vm.provision :chef_solo do |chef|
-      chef.run_list = %w(failover-mysql::wordpress)
-      chef.json = CONFIGURATION['CHEF_JSON']['web']
-    end
+    web
   end
 end
