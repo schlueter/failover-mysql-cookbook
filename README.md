@@ -9,6 +9,7 @@ The Vagrantfile can be used to bring up an example [Virtual box][] instance host
 ### Dependencies
 
 - [Chef Development Kit][]
+- [Virtual box][]
 - [Vagrant][]
 - [Vagrant Berkshelf][], obtainable by `vagrant plugin install vagrant-berkshelf`
 - [Vagrant Omnibus][], obtainable by `vagrant plugin install vagrant-omnibus`
