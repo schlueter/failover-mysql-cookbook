@@ -77,6 +77,8 @@ CHEF_JSON:
         - *web_ip
         - 127.0.0.1
         - localhost
+      wp_config_options:
+        DISABLE_WP_CRON: !!str true
 
   web_failover:
     failover-mysql:
