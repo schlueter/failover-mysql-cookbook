@@ -26,8 +26,8 @@ IP_ADDRESSES:
   web: &web_ip 192.168.10.13
 
 PASSWORDS:
-  - &sql1_root_pass root1_pass
-  - &sql2_root_pass root2_pass
+  - &sql1_root_pass root1pass
+  - &sql2_root_pass root2pass
 
 CHEF_JSON:
   sql1:
