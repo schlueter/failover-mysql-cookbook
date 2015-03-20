@@ -72,7 +72,7 @@ Vagrant.configure(2) do |config|
       web.vm.hostname = 'web'
       web.vm.network :private_network, ip: CONFIGURATION['IP_ADDRESSES']['web']
 
-      web.vm.network 'forwarded_port', guest: 80, host: 8080
+      web.vm.network 'forwarded_port', guest: 80, host: CONFIGURATION['HTTP_PORT']
 
       web.vm.provider :virtualbox do |vbox|
         vbox.memory = CONFIGURATION['VMS']['web']['memory']
