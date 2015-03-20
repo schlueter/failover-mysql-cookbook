@@ -83,7 +83,6 @@ Vagrant.configure(2) do |config|
     else
       sql1('sql1_failover')
     end
-    web('web_failover')
     # Clear the contents of the file
     File.open('.failover', 'w') {}
     # Populate the file with the current master
@@ -91,6 +90,7 @@ Vagrant.configure(2) do |config|
       file.write CONFIGURATION['FAILOVER_FILE_PREFIX']
       file.write "master=#{@master == 'sql1' ? 'sql2' : 'sql1'}"
     end
+    web('web_failover')
   else
     sql1
     sql2
