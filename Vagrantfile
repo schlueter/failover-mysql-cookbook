@@ -26,7 +26,7 @@ require 'yaml'
 Vagrant.configure(2) do |config|
   CONFIGURATION = YAML.load_file(File.join(File.dirname(__FILE__), 'vagrant_configuration.yml'))
 
-  config.omnibus.chef_version = '11.8.2' if Vagrant.has_plugin?('vagrant-omnibus')
+  config.omnibus.chef_version = '12.1.1' if Vagrant.has_plugin?('vagrant-omnibus')
   config.cache.scope = :box if Vagrant.has_plugin?('vagrant-cachier')
 
   config.vm.box = CONFIGURATION['BOX']
