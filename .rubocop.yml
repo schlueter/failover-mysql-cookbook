@@ -15,9 +15,9 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ##
 
-# Rubocop's default of 15 is far too low for even database connections
+# Rubocop's default of 15 is far too low for database connections, not to mention VM definitions
 Metrics/AbcSize:
-  Max: 20
+  Max: 30
 
 # Rubocop's default is 80, which is overly restrictive (the author likes long variable names)
 Metrics/LineLength:
