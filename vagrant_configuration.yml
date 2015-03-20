@@ -84,6 +84,15 @@ CHEF_JSON:
       database:
         host: *sql1_ip
         root_password: *sql1_root_pass
+      nginx:
+        conf:
+          options:
+            # The nginx docs, and the community as a whole suggest this should be set to the # of cpus
+            worker_processes: *web_cpus
+          events_options:
+            # This is the maximum number of open file descriptors available by default on ubuntu 14.04
+            # it can be dynamically determined by running `nlimit -n`
+            worker_connections: 1024
     wordpress:
       server_aliases:
         - *web_ip

@@ -41,6 +41,10 @@ default['failover-mysql']['web']['server'] = 'nginx'
 # Must be specified on db instances
 default['failover-mysql']['web']['host'] = '127.0.0.1'
 
+# Nginx configuration options not provided by the wordpress ckbk
+default['failover-mysql']['nginx']['conf']['options'] = {}
+default['failover-mysql']['nginx']['conf']['events_options'] = {}
+
 db = node['failover-mysql']['database']
 
 # Overrides for wordpress ckbk
