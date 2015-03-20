@@ -51,16 +51,3 @@ template "#{node['wordpress']['dir']}/wp-config.php" do
   action :create
   cookbook 'wordpress'
 end
-
-template "#{node['nginx']['dir']}/sites-enabled/wordpress.conf" do
-  source 'nginx.conf.erb'
-  variables(
-    docroot: node['wordpress']['dir'],
-    server_name: node['wordpress']['server_name'],
-    server_aliases: node['wordpress']['server_aliases'],
-    server_port: node['wordpress']['server_port'],
-    conf_options: node['failover-mysql']['nginx']['conf']['options'],
-    conf_events_options: node['failover-mysql']['nginx']['conf']['events_options']
-  )
-  action :create
-end
