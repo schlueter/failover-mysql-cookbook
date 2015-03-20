@@ -33,6 +33,10 @@ Fail over can be initiated by running `FAILOVER=1 vagrant provision` after the s
 - :promote: promote a slave server to master and slave its previous master to it
     Uses new property `slaves` which should be an array of hashes containing connection information for a user with the __SUPER__ privilege on each slave which will not be promoted to master including the current master. Additionally, the `slave_connection` property should be populated with connection information for a slave user on the new master, and the `connection` property should be connection information for a user with the __SUPER__ privilege on the new master. 
 
+## Notes
+
+- Berkshelf doesn't appreciate having cookbooks source change, so during development on this cookbook, vagrant commands should be preceded by `rm -rf Berksfile.lock ~/.berkshelf/vagrant-berkshelf/shelves/*`
+
 ## License
 
 Copyright (C) 2015 Brandon Schlueter
