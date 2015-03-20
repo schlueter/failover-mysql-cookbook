@@ -161,13 +161,12 @@ class Chef
         end
 
         def close_slave_clients
-          if @slave_clients
-            @slave_clients.each do |slave|
-              begin
-                slave.close if slave
-              rescue Mysql2::Error
-                Chef::Log.debug('Failed to close connection to slave.')
-              end
+          return unless @slave_clients
+          @slave_clients.each do |slave|
+            begin
+              slave.close if slave
+            rescue Mysql2::Error
+              Chef::Log.debug('Failed to close connection to slave.')
             end
           end
         end
