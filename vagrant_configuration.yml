@@ -8,6 +8,18 @@ FAILOVER_FILE_PREFIX: |
   If that line or this file does not exist, the Vagrantfile will
   assume the 'sql1' box is the master. Any other line is ignored.
 
+VMS:
+  sql1:
+    memory: &sql1_memory 2048
+    cpus: &sql1_cpus 2
+  sql2:
+    memory: &sql2_memory 2048
+    cpus: &sql2_cpus 2
+  web:
+    memory: &web_memory 2048
+    cpus: &web_cpus 2
+
+
 IP_ADDRESSES:
   sql1: &sql1_ip 192.168.10.11
   sql2: &sql2_ip 192.168.10.12

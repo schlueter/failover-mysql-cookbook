@@ -34,7 +34,13 @@ Vagrant.configure(2) do |config|
 
   def sql1(chef_json='sql1')
     @config.vm.define 'sql1' do |sql|
+      sql.vm.hostname = 'sql1'
       sql.vm.network :private_network, ip: CONFIGURATION['IP_ADDRESSES']['sql1']
+
+      sql.vm.provider :virtualbox do |vbox|
+        vbox.memory = CONFIGURATION['VMS']['sql1']['memory']
+        vbox.cpus = CONFIGURATION['VMS']['sql1']['cpus']
+      end
 
       sql.vm.provision :chef_solo do |chef|
         chef.run_list = %w(failover-mysql)
@@ -45,7 +51,13 @@ Vagrant.configure(2) do |config|
 
   def sql2(chef_json='sql2')
     @config.vm.define 'sql2' do |sql|
+      sql.vm.hostname = 'sql2'
       sql.vm.network :private_network, ip: CONFIGURATION['IP_ADDRESSES']['sql2']
+
+      sql.vm.provider :virtualbox do |vbox|
+        vbox.memory = CONFIGURATION['VMS']['sql2']['memory']
+        vbox.cpus = CONFIGURATION['VMS']['sql2']['cpus']
+      end
 
       sql.vm.provision :chef_solo do |chef|
         chef.run_list = %w(failover-mysql)
@@ -56,9 +68,15 @@ Vagrant.configure(2) do |config|
 
   def web(chef_json='web')
     @config.vm.define 'web' do |web|
+      web.vm.hostname = 'web'
       web.vm.network :private_network, ip: CONFIGURATION['IP_ADDRESSES']['web']
 
       web.vm.network 'forwarded_port', guest: 80, host: 8080
+
+      web.vm.provider :virtualbox do |vbox|
+        vbox.memory = CONFIGURATION['VMS']['web']['memory']
+        vbox.cpus = CONFIGURATION['VMS']['web']['cpus']
+      end
 
       web.vm.provision :chef_solo do |chef|
         chef.run_list = %w(failover-mysql::wordpress)
