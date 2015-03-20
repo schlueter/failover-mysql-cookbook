@@ -12,11 +12,11 @@ The Vagrantfile can be used to bring up an example [Virtual box][] instance host
 - [Virtual box][]
 - [Vagrant][]
 - [Vagrant Berkshelf][], obtainable by `vagrant plugin install vagrant-berkshelf`
-- [Vagrant Omnibus][], obtainable by `vagrant plugin install vagrant-omnibus`
 
 #### Optional
 
 - [Vagrant Cachier][], obtainable by `vagrant plugin install vagrant-cachier`
+- [Vagrant Omnibus][], obtainable by `vagrant plugin install vagrant-omnibus`
 
 ### Bringing it up
 
